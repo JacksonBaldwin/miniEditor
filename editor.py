@@ -39,6 +39,7 @@ def saveState(): #done on exit, closes current file
         st.write('none')
     current_file.close()
     saveFile(current_content)
+    print('file saved, exiting...')
     quit()
 
 def saveFile(text):
@@ -51,18 +52,18 @@ def saveFile(text):
     except:
         return 1
 
-def refreshScreen():
+def refreshScreen(add):
     global current_content
     global current_path
     os.system('clear')
-    print('**currently editing: '+ str(current_path)+'**')
+    print(str(add)+'\n**currently editing: '+ str(current_path)+'**')
     print(current_content)
 
-def parseCommand(command):
+def parseCommand(command,char):
     parsed = []
     parse = ''
     for i in range(len(command)):
-        if command[i] == ' ':
+        if command[i] == char:
             parsed.append(parse)
             parse = ''
         else:
@@ -73,13 +74,16 @@ def parseCommand(command):
 
 def handleCommands(com):
     global current_content
-    parsedCom = parseCommand(com)
+    global current_file
+    parsedCom = parseCommand(com,' ')
     if parsedCom[1] == 'exit':
         saveState()
     if parsedCom[1] == 'save':
         saveFile(current_content)
+        print('**file saved**')
         return 0
-
+    if parsedCom[1] == 'stats':
+        refreshScreen(current_file)
 
 #on run
 loadst = loadState()
@@ -87,10 +91,11 @@ if loadst == 2:
     print('error loading program state, relaunch the program')
     saveState() # error probably caused by missing state file, this should fix
 
+refreshScreen('')
 while True:
-    refreshScreen()
     line = input('')
     if line[0:3] == 'com':
         handleCommands(line)
     else:
         current_content += '\n'+line
+        refreshScreen('')
